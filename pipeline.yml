@@ -69,7 +69,7 @@ jobs:
 
                             cd /tmp/new_rpms/
                             for rpm in *.rpm; do
-                                distro=$(rpm -q --qf "%{RELEASE}\n" $rpm | grep -E -o 'fc[0-9]{2}|el[0-9]')
+                                distro=$(rpm -q --qf "%{RELEASE}\n" $rpm | grep -P -o '(?<=\.)(fc[0-9]{2}|el[0-9])$')
                                 [ -n "$distro" ] || (echo "Unable to figure out distro for $rpm"; exit 1)
                                 /rpm-s3/bin/rpm-s3 -b rpmrepo-1-43ybe46n6 -p "$distro/" -r eu-west-1 $rpm
                                 aws s3 rm s3://$INPUT_BUCKET/$rpm
