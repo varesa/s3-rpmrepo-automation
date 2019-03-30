@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+
+# IAM Users
+#
+  IAMIngestUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: rpmrepo-1-ingest-g45oji54y
+  IAMAdminUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: rpmrepo-1-admin-t43wt45h
+
+  IAMAK3PKU6:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !Ref IAMIngestUser
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: e4ffa6cd-cc03-4ea2-8808-506b70ebedfe
+    DependsOn:
+      - IAMIngestUser
+  IAMAK3VOV2:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !Ref IAMAdminUser
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: b108efde-6aa9-4521-9929-beede73a999a
+    DependsOn:
+      - IAMAdminUser
+
+# S3 Buckets
+#
+  S3RepoIngestBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: rpmrepo-1-ingest-b54e8
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: aa3fab6f-2c2b-41f1-b611-cb311afb6638
+    DependsOn:
+      - IAMAdminUser
+      - IAMIngestUser
+  S3RepoBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: rpmrepo-1-43ybe46n6
+    DependsOn:
+      - IAMAdminUser
+ 
+# IAM Policies
+#
+  IAMAdderPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      Users:
+        - !Ref IAMIngestUser
+      PolicyName: rpmrepo-1-ingest
+      PolicyDocument: {
+          "Version": "2012-10-17",
+          "Statement": [{
+              "Action": [ "s3:ListBucket" ],
+              "Effect": "Allow",
+              "Resource": !Join ["", ["arn:aws:s3:::zzz-", !Ref S3RepoIngestBucket]]
+          },{
+              "Action": [ "s3:PutObject" ],
+              "Effect": "Allow",
+              "Resource": !Join ["", ["arn:aws:s3:::", !Ref S3RepoIngestBucket, "/*"]]
+          }]
+        }
+    DependsOn:
+      - S3RepoIngestBucket
+
+  IAMManagerPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      Users:
+        - !Ref IAMAdminUser
+      PolicyName: rpmrepo-1-manager
+      PolicyDocument: {
+        "Version": "2012-10-17",
+        "Statement": [{
+          "Action": [ "s3:ListBucket" ],
+          "Effect": "Allow",
+          "Resource": !Join ["", ["arn:aws:s3:::", !Ref S3RepoIngestBucket]]
+        },{
+          "Action": [ "s3:GetObject", "s3:DeleteObject" ],
+          "Effect": "Allow",
+          "Resource": !Join ["", ["arn:aws:s3:::", !Ref S3RepoIngestBucket, "/*"]]
+        },{
+          "Action": [ "s3:ListBucket", "s3:GetBucketAcl", "s3:PutBucketAcl" ],
+          "Effect": "Allow",
+          "Resource": !Join ["", ["arn:aws:s3:::", !Ref S3RepoBucket]]
+        },{
+          "Action": [ "s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:GetObjectAcl", "s3:PutObjectAcl" ],
+          "Effect": "Allow",
+          "Resource": !Join ["", ["arn:aws:s3:::", !Ref S3RepoBucket, "/*"]]
+        }]
+      }
+    DependsOn:
+      - S3RepoBucket
+
