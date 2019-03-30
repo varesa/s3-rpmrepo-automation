@@ -8,7 +8,7 @@ Cloudformation creates two S3 buckets, one for "staging" packages and one for th
 
 The staging bucket can be pushed to from arbitrary build processes without direct write access to the repository. After pushing a set of packages the build process would trigger the Concourse job that reads the staging area, uploads them to the actual repository bucket in S3 and rebuilds the metadata.
 
-The packages pushed to the staging bucket should not contain a directory key (no `project/my-artifact.rpm` and should be in the root of the bucket instead).
+The packages pushed to the staging bucket should not contain a directory key (so no `project/my-artifact.rpm`) and should be in the root of the bucket instead.
 
 ## Repository build
 
