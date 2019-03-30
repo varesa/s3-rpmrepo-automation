@@ -16,18 +16,12 @@ Resources:
     Type: 'AWS::IAM::AccessKey'
     Properties:
       UserName: !Ref IAMIngestUser
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: e4ffa6cd-cc03-4ea2-8808-506b70ebedfe
     DependsOn:
       - IAMIngestUser
   IAMAK3VOV2:
     Type: 'AWS::IAM::AccessKey'
     Properties:
       UserName: !Ref IAMAdminUser
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: b108efde-6aa9-4521-9929-beede73a999a
     DependsOn:
       - IAMAdminUser
 
@@ -37,18 +31,10 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: rpmrepo-1-ingest-b54e8
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: aa3fab6f-2c2b-41f1-b611-cb311afb6638
-    DependsOn:
-      - IAMAdminUser
-      - IAMIngestUser
   S3RepoBucket:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: rpmrepo-1-43ybe46n6
-    DependsOn:
-      - IAMAdminUser
  
 # IAM Policies
 #
@@ -70,8 +56,6 @@ Resources:
               "Resource": !Join ["", ["arn:aws:s3:::", !Ref S3RepoIngestBucket, "/*"]]
           }]
         }
-    DependsOn:
-      - S3RepoIngestBucket
 
   IAMManagerPolicy:
     Type: 'AWS::IAM::Policy'
@@ -99,6 +83,3 @@ Resources:
           "Resource": !Join ["", ["arn:aws:s3:::", !Ref S3RepoBucket, "/*"]]
         }]
       }
-    DependsOn:
-      - S3RepoBucket
-
