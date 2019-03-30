@@ -54,6 +54,11 @@ jobs:
                             mkdir /tmp/new_rpms
                             aws s3 sync s3://rpmrepo-1-ingest-b54e8/ /tmp/new_rpms/
 
+                            if [[ "$(ls /tmp/new_rpms/ | wc -l)" == "0" ]]; then
+                                echo "No packages found - exiting"
+                                exit 0
+                            fi
+
                             set +x
                             echo ""
                             echo "###########################"
