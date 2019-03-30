@@ -1,0 +1,56 @@
+---
+resources:
+    - name: git-repo
+      type: git
+      source:
+          uri: https://github.com/varesa/s3-rpmrepo-automation
+          branch: master
+
+    - name: container-image
+      type: docker-image
+      source:
+          repository: registry.esav.fi/tools/s3-rpmrepo
+          username: ((autom_username))
+          password: ((autom_password))
+
+jobs:
+    - name: Build and publish container
+      public: true
+      serial: true
+      plan:
+          - get: git-repo
+          - put: container-image
+            params:
+                build: git-repo
+
+    - name: Update RPM repo
+      public: true
+      plan:
+          # Do this to get the dependency in the graph
+          - get: container-image
+            passed: ["Build and publish container"]
+
+          - task: update
+            config:
+                platform: linux
+
+                image_resource:
+                    type: docker-image
+                    source: { repository: registry.esav.fi/tools/s3-rpmrepo }
+
+                run:
+                    path: bash
+                    args:
+                        - -euc
+                        - |
+                            set +x
+                            echo ""
+                            echo "################"
+                            echo "# Hello  world #"
+                            echo "################"
+                            echo ""
+                            set -x
+
+                params:
+                    SSH_KEY: ((ssh-private))
+
